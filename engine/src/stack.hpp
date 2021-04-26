@@ -185,6 +185,7 @@ struct LoggingConf : public Confable {
 
 struct ServerConf : public Confable {
   bool listen{true};
+  bool write_data_file{false};
   std::string listen_address{"127.0.0.1"};
   uint16_t listen_port{8080};
   uint16_t listen_threads{10};
@@ -201,6 +202,7 @@ struct ServerConf : public Confable {
         {"listen_threads", make_schema(&listen_threads, "threads web server should use")},
         {"static_prefix", make_schema(&static_prefix, "endpoint prefix for static resources")},
         {"api_prefix", make_schema(&api_prefix, "endpoint prefix for API resources")},
+        {"write_data_file", make_schema(&write_data_file, "dump endpoint data")},
     };
   }
 };

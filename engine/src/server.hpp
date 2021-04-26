@@ -26,8 +26,8 @@
 #include <cloe/handler.hpp>    // for Request, Response
 #include <cloe/registrar.hpp>  // for Registrar
 
-#include "stack.hpp"      // for ServerConf
 #include "oak/server.hpp"  // for Server, StaticRegistrar, ...
+#include "stack.hpp"       // for ServerConf
 
 namespace engine {
 
@@ -82,6 +82,9 @@ class Server {
       logger()->info("Stopping server...");
       server_.stop();
     }
+    if (config.write_data_file) {
+      buffer_api_registrar_.dump_buffer_finalize();
+    }
   }
 
   void enroll(cloe::Registrar& r) {
@@ -107,11 +110,14 @@ class Server {
   }
 
   /**
-   * Refresh the server buffer.
+   * Refresh and/or write the server buffer to a file.
    */
   void refresh_buffer() {
     if (config.listen) {
       buffer_api_registrar_.refresh_buffer();
+    }
+    if (config.write_data_file) {
+      buffer_api_registrar_.dump_buffer(!config.listen);
     }
   }
 

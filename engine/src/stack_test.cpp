@@ -99,7 +99,8 @@ TEST(cloe_stack, serialization_of_empty_stack) {
       "listen_address": "127.0.0.1",
       "listen_port": 8080,
       "listen_threads": 10,
-      "static_prefix": ""
+      "static_prefix": "",
+      "write_data_file": false
     },
     "simulation": {
       "model_step_width": 20000000,
@@ -194,7 +195,8 @@ TEST(cloe_stack, serialization_with_logging) {
       "listen_address": "127.0.0.1",
       "listen_port": 8080,
       "listen_threads": 10,
-      "static_prefix": ""
+      "static_prefix": "",
+      "write_data_file": false
     },
     "simulators": [],
     "simulation": {
