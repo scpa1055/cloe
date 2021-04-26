@@ -88,9 +88,6 @@ class AbstractJsonSerializerBase {
   static const std::string json_array_close;
 };
 
-const std::string AbstractJsonSerializerBase::json_array_open("\n[\n");   // NOLINT
-const std::string AbstractJsonSerializerBase::json_array_close("\n]\n");  // NOLINT
-
 template <typename... TSerializerArgs>
 class AbstractJsonSerializer : public Serializer<TSerializerArgs...>,
                                public AbstractJsonSerializerBase {
@@ -133,29 +130,6 @@ class BasicFileOutputStream : public OutputStream {
  protected:
   std::ofstream ofs_;  // output file stream
 };
-
-bool BasicFileOutputStream::open_file(const std::string& filename,
-                                      const std::string& default_filename) {
-  const auto& output_file = filename == "" ? default_filename : filename;
-  if (&output_file == &default_filename) {
-    logger_->warn("No output file specified, using {}", output_file);
-  }
-
-  ofs_.open(output_file);
-  bool success = !ofs_.fail();
-  if (success) {
-    logger_->info("Writing output to file: {}", output_file);
-  } else {
-    logger_->error("Error opening file for writing: {}", output_file);
-  }
-  return success;
-}
-
-void BasicFileOutputStream::close_stream() {
-  if (ofs_.is_open()) {
-    ofs_.close();
-  }
-}
 
 class FileOutputStream : public BasicFileOutputStream {
  public:
