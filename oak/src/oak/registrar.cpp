@@ -26,7 +26,8 @@
 #include <memory>
 #include <string>
 
-#include "oak/server.hpp"
+#include <cloe/core.hpp>   // for Json, logger::get
+#include "oak/server.hpp"  // for Server
 
 namespace oak {
 
@@ -146,6 +147,43 @@ void BufferRegistrar::refresh_route(const std::string& key) {
   Response r;
   handler(q, r);
   buffer_.set_unsafe(key, r);
+}
+
+void BufferRegistrar::dump_buffer(bool update_buffer) {
+  if (update_buffer) {
+    refresh_buffer();
+  }
+  auto j = buffer_to_json();
+  if (!j.empty()) {
+    write_to_file(j);
+  }
+}
+
+cloe::Json BufferRegistrar::buffer_to_json() {
+  cloe::Json j;
+  for (auto key : handlers_.routes()) {
+    auto r = buffer_.get_unsafe(key).first;
+    if (r.status() == cloe::StatusCode::OK && r.type() == cloe::ContentType::JSON) {
+      j[key] = cloe::Json(r.body());
+    }
+  }
+  return j;
+}
+
+void BufferRegistrar::write_to_file(const cloe::Json& j) {
+  bool write_delimiter = true;
+  if (!serializer_) {
+    auto log = cloe::logger::get("cloe-server");
+    serializer_ = makeJsonFileSerializer(cloe::utility::FileTypeEnum::JSON_GZIP, log);
+    serializer_->open_file("api.json.gz");
+    write_delimiter = false;
+  }
+  serializer_->serialize(j, write_delimiter);
+}
+
+void BufferRegistrar::dump_buffer_finalize() {
+  assert(serializer_);
+  serializer_->close_file();
 }
 
 }  // namespace oak

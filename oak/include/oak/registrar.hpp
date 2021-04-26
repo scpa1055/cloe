@@ -28,12 +28,13 @@
 #include <string>
 #include <utility>
 
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
+#include <boost/thread/locks.hpp>         // for unique_lock
+#include <boost/thread/shared_mutex.hpp>  // for shared_mutex
 
-#include <cloe/handler.hpp>
+#include <cloe/handler.hpp>                         // for Handler
+#include <cloe/utility/output_serializer_json.hpp>  // for JsonFileSerializer
 
-#include "oak/route_muxer.hpp"
+#include "oak/route_muxer.hpp"  // for Muxer
 
 namespace oak {
 
@@ -235,6 +236,16 @@ class BufferRegistrar : public StaticRegistrar {
    */
   void refresh_buffer();
 
+  /**
+   * Dump the entire buffer to a file.
+   */
+  void dump_buffer(bool update_buffer);
+
+  /**
+   * Close the buffer file.
+   */
+  void dump_buffer_finalize();
+
  protected:
   /**
    * Refresh the buffer for the given route.
@@ -244,10 +255,15 @@ class BufferRegistrar : public StaticRegistrar {
    */
   void refresh_route(const std::string& key);
 
+  cloe::Json buffer_to_json();
+
+  void write_to_file(const cloe::Json& j);
+
  protected:
   mutable boost::shared_mutex access_;
   Muxer<Response> buffer_;
   Muxer<Handler> handlers_;
+  std::unique_ptr<cloe::utility::JsonFileSerializer> serializer_;
 };
 
 }  // namespace oak
