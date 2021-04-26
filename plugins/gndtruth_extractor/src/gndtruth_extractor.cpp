@@ -154,6 +154,7 @@ class GndTruthSerializerImpl
  public:
   GndTruthSerializerImpl(Logger& logger) : base1(logger), GndTruthSerializer() {}
   virtual ~GndTruthSerializerImpl() override;
+  using base1::open_file;
   virtual void open_file(const std::string& filename) override {
     std::string default_name = this->outputstream_.make_default_filename(
         this->serializer_.make_default_filename(default_filename));
