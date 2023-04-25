@@ -20,9 +20,11 @@ class CloeSimulatorVTD(ConanFile):
     settings = "os", "compiler", "build_type", "arch"
     options = {
         "pedantic": [True, False],
+        "vtd_version": ["2.2.0", "2022.3"]
     }
     default_options = {
         "pedantic": True,
+        "vtd_version": "2.2.0"
     }
     generators = "CMakeDeps", "VirtualRunEnv"
     no_copy_source = True
@@ -49,7 +51,7 @@ class CloeSimulatorVTD(ConanFile):
         self.requires(f"cloe-runtime/{self.version}@cloe/develop")
         self.requires(f"cloe-models/{self.version}@cloe/develop")
         self.requires("open-simulation-interface/3.2.0@cloe/stable")
-        self.requires("vtd-api/2.2.0@cloe/stable")
+        self.requires(f"vtd-api/{self.options.vtd_version}@cloe/stable")
 
         # Overrides, same as in the cloe conanfile.py:
         self.requires("protobuf/[>=3.9.1]", override=True)
@@ -104,15 +106,10 @@ class CloeSimulatorVTD(ConanFile):
         cmake.cmake_layout(self)
 
     def generate(self):
-        vtd_api_version = str(self.requires.get("vtd-api"))
-        if "vtd-api/2.2.0" in vtd_api_version:
-            self.vtd_api_version = "2.2.0"
-        else:
-            self.vtd_api_version = "2022.3"
         tc = cmake.CMakeToolchain(self)
         tc.cache_variables["CMAKE_EXPORT_COMPILE_COMMANDS"] = True
-        tc.preprocessor_definitions["VTD_API_VERSION"] = self.vtd_api_version
-        tc.cache_variables["VTD_API_VERSION"] = self.vtd_api_version
+        tc.preprocessor_definitions["VTD_API_VERSION"] = self.options.vtd_version
+        tc.cache_variables["VTD_API_VERSION"] = self.options.vtd_version
         tc.cache_variables["CLOE_PROJECT_VERSION"] = self.version
         tc.cache_variables["TargetLintingExtended"] = self.options.pedantic
         tc.generate()
@@ -130,7 +127,7 @@ class CloeSimulatorVTD(ConanFile):
         self.copy(
             "*.tar",
             dst=self._setup_folder,
-            src=f"{self.source_folder}/{self._setup_folder}/{self.vtd_api_version}"
+            src=f"{self.source_folder}/{self._setup_folder}/{self.options.vtd_version}"
         )
 
     def package_id(self):

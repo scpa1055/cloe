@@ -13,6 +13,7 @@ class CloeTest(ConanFile):
 
     default_options = {
         "cloe-engine:server": True,
+        "cloe-plugin-vtd:vtd_version": "2022.3",
     }
 
     @property
